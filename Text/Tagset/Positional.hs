@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PatternGuards #-}
 
 -- | Parsing and printing positional tags and tagsets.
 
@@ -21,21 +22,21 @@ import Data.Tagset.Positional
 -- | Parse the tag given the corresponding tagset.
 parseTag :: Tagset -> T.Text -> Tag
 parseTag tagset inp =
-    Tag pos . M.fromList $ parseRule (rule tagset pos) attrVals
+    Tag _pos . M.fromList $ parseRule (rule tagset _pos) attrVals
   where
-    (pos : attrVals) = T.split (==':') inp
-    parseRule ((attr, opt):atts) (x:xs)
+    (_pos : attrVals) = T.split (==':') inp
+    parseRule ((attr, opt):restAtts) (x:xs)
         | x `S.member` domain tagset attr
-            = (attr, x) : parseRule atts xs
-        | opt == True   = parseRule atts (x:xs)
+            = (attr, x) : parseRule restAtts xs
+        | opt == True   = parseRule restAtts (x:xs)
         | otherwise     = error $ "parseRule:"
             ++ " no value for " ++ T.unpack attr
             ++ " attribute in tag " ++ T.unpack inp
     parseRule [] [] = []
-    parseRule ((_, True):atts) [] = parseRule atts []
-    parseRule as [] = error $ "parseRule: unexpected end of input in tag "
+    parseRule ((_, True):restAtts) [] = parseRule restAtts []
+    parseRule _ [] = error $ "parseRule: unexpected end of input in tag "
         ++ T.unpack inp
-    parseRule [] xs = error $ "parseRule: input too long in tag "
+    parseRule [] _ = error $ "parseRule: input too long in tag "
         ++ T.unpack inp
 
 -- | Print the tag given the corresponding tagset.
@@ -66,7 +67,7 @@ attrSec = do
 attrLine :: Parser (Attr, S.Set T.Text)
 attrLine = do
     attr <- ident
-    spaces *> char '=' *> lineSpaces
+    _ <- spaces *> char '=' *> lineSpaces
     values <- map T.pack <$> ident `endBy` lineSpaces
     return (T.pack attr, S.fromList values)
 
@@ -77,27 +78,34 @@ ruleSec = do
 
 ruleLine :: Parser (POS, [(Attr, Optional)])
 ruleLine = do
-    pos <- ident
-    lineSpaces *> char '=' *> lineSpaces
+    _pos <- ident
+    _ <- lineSpaces *> char '=' *> lineSpaces
     actionAtts <- attrName `endBy` lineSpaces
-    return $ (T.pack pos, actionAtts)
+    return $ (T.pack _pos, actionAtts)
 
 attrName :: Parser (Attr, Optional)
 attrName = optionalAttrName <|> plainAttrName <?> "attribute name"
+
+optionalAttrName :: Parser (Attr, Optional)
 optionalAttrName = do
-    char '['
-    name <- ident
-    char ']'
+    name <- char '[' *> ident <*  char ']'
     return (T.pack name, True)
+
+plainAttrName :: Parser (Attr, Optional)
 plainAttrName = do
     name <- ident
     return $ (T.pack name, False)
 
+lineSpace :: Parser Char
 lineSpace = satisfy $ \c -> (isSpace c) && (not $ c == '\n')
+
+lineSpaces :: Parser String
 lineSpaces = many lineSpace
 
+ident :: Parser String
 ident = many1 $ oneOf $ ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "."
 
+secName :: String -> Parser Char
 secName name = char '[' *> string name *> char ']'
 
 -- | Parse the textual representation of the tagset.  The first argument
@@ -114,10 +122,10 @@ removeComment :: Char -> String -> String
 removeComment commChar s = case findComment s of
     Just i -> fst $ splitAt i s
     Nothing -> s
-    where
-        findComment s = doFind s 0 False
-        doFind (x:xs) acc inQuot
-            | x == commChar && not inQuot = Just acc
-            | x == '"' = doFind xs (acc + 1) (not inQuot)
-            | otherwise =  doFind xs (acc + 1) inQuot
-        doFind [] _ _ = Nothing
+  where
+    findComment xs = doFind xs 0 False
+    doFind (x:xs) acc inQuot
+        | x == commChar && not inQuot = Just acc
+        | x == '"' = doFind xs (acc + 1) (not inQuot)
+        | otherwise =  doFind xs (acc + 1) inQuot
+    doFind [] _ _ = Nothing

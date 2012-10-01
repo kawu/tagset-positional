@@ -17,7 +17,7 @@ module Data.Tagset.Positional
 import Control.Applicative ((<$>), (<*>))
 import Control.Arrow (first)
 import Data.Binary
-import Data.Text.Binary
+import Data.Text.Binary ()
 import qualified Data.Text as T
 import qualified Data.Map as M
 import qualified Data.Set as S
