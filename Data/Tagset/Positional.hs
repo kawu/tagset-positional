@@ -14,10 +14,7 @@ module Data.Tagset.Positional
 , tagSim
 ) where
 
-import Control.Applicative ((<$>), (<*>))
 import Control.Arrow (first)
-import Data.Binary
-import Data.Text.Binary ()
 import qualified Data.Text as T
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -37,11 +34,6 @@ data Tagset = Tagset
     { domains   :: M.Map Attr (S.Set T.Text)
     , rules     :: M.Map POS  [(Attr, Optional)]
     } deriving (Show)
-
-instance Binary Tagset where
-    put ts = put (domains ts)
-          >> put (rules ts)
-    get = Tagset <$> get <*> get
 
 -- | Set of potential values for the given attribute.
 domain :: Tagset -> Attr -> S.Set T.Text
@@ -63,10 +55,6 @@ data Tag = Tag
     { pos   :: POS
     , atts  :: M.Map Attr T.Text
     } deriving (Show, Read, Eq, Ord)
-
-instance Binary Tag where
-    put Tag{..} = put pos >> put atts
-    get = Tag <$> get <*> get
 
 -- | Expand optional attributes of the tag.
 expand :: Tagset -> Tag -> [Tag]

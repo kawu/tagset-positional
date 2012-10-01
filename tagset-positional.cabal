@@ -1,6 +1,6 @@
 name:               tagset-positional
-version:            0.1.0
-synopsis:           Handling positional tags and tagsets
+version:            0.1.1
+synopsis:           Positional tags and tagsets
 description:
     The library provides printing and parsing functions for positional
     tags and tagsets.
@@ -12,7 +12,7 @@ author:             Jakub Waszczuk
 maintainer:         waszczuk.kuba@gmail.com
 stability:          experimental
 category:           Natural Language Processing
-homepage:           https://github.com/kawu/positional-tagset
+homepage:           https://github.com/kawu/tagset-positional
 build-type:         Simple
 
 library
@@ -21,8 +21,6 @@ library
       , containers
       , parsec
       , text
-      , binary
-      , text-binary
 
     exposed-modules:
         Data.Tagset.Positional
