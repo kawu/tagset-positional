@@ -31,8 +31,8 @@ type POS = T.Text
 -- | Is the attribute optional?
 type Optional = Bool
 
--- | The tagset consists of a domain (set of attribute values) for
--- each attribute name and of a parsing rule for each part of speech.
+-- | The tagset consists of a domain for each attribute name and of a
+-- parsing rule for each part of speech.
 data Tagset = Tagset
     { domains   :: M.Map Attr (S.Set T.Text)
     , rules     :: M.Map POS  [(Attr, Optional)]
@@ -57,7 +57,7 @@ rule Tagset{..} x =
     Just y  -> y
     Nothing -> error $ "rule: unknown POS " ++ T.unpack x
 
--- | A morphosyntactic tag consists of the POS value and corresponding
+-- | The morphosyntactic tag consists of the POS value and corresponding
 -- attribute values.
 data Tag = Tag
     { pos   :: POS
@@ -68,7 +68,7 @@ instance Binary Tag where
     put Tag{..} = put pos >> put atts
     get = Tag <$> get <*> get
 
--- | Expand tag optional attributes.
+-- | Expand optional attributes of the tag.
 expand :: Tagset -> Tag -> [Tag]
 expand tagset tag = do
     values <- sequence (map attrVal rl)
