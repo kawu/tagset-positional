@@ -19,7 +19,7 @@ module Data.Tagset.Positional
 , Tag (..)
 , expand
 , tagSim
--- * Parsing and printing
+-- ** Parsing and printing
 , parseTag
 , showTag
 ) where
