@@ -21,6 +21,8 @@ library
       , containers
       , parsec
       , text
+      , binary
+      , text-binary >= 0.1 && < 0.2
 
     exposed-modules:
         Data.Tagset.Positional

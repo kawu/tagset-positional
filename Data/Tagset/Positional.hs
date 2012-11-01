@@ -29,6 +29,8 @@ import Control.Applicative ((<$>), (<*>), (<*), (*>))
 import Text.Parsec
 import Data.Char (isSpace)
 import Data.Maybe (catMaybes)
+import Data.Binary (Binary, get, put)
+import Data.Text.Binary ()
 import qualified Data.Text as T
 import qualified Data.Map as M
 import qualified Data.Set as S
@@ -50,7 +52,11 @@ type Optional = Bool
 data Tagset = Tagset
     { domains   :: M.Map Attr (S.Set AttrVal)
     , rules     :: M.Map POS  [(Attr, Optional)]
-    } deriving (Show)
+    } deriving (Show, Eq, Ord)
+
+instance Binary Tagset where
+    put Tagset{..} = put domains >> put rules
+    get = Tagset <$> get <*> get
 
 -- | Set of potential values for the given attribute.
 domain :: Tagset -> Attr -> S.Set AttrVal
