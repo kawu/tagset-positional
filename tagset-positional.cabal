@@ -1,5 +1,5 @@
 name:               tagset-positional
-version:            0.2.0
+version:            0.3.0
 synopsis:           Positional tags and tagsets
 description:
     The library provides printing and parsing functions for positional

@@ -79,6 +79,10 @@ data Tag = Tag
     , atts  :: M.Map Attr AttrVal
     } deriving (Show, Read, Eq, Ord)
 
+instance Binary Tag where
+    put Tag{..} = put pos >> put atts
+    get = Tag <$> get <*> get
+
 -- | Expand optional attributes of the tag.
 expand :: Tagset -> Tag -> [Tag]
 expand tagset tag = do
