@@ -189,7 +189,7 @@ lineSpaces :: Parser String
 lineSpaces = many lineSpace
 
 ident :: Parser String
-ident = many1 $ oneOf $ ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "."
+ident = many1 $ oneOf $ ['a'..'z'] ++ ['A'..'Z'] ++ ['0'..'9'] ++ "." ++ "_"
 
 secName :: String -> Parser Char
 secName name = char '[' *> string name *> char ']'
